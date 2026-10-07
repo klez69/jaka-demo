@@ -1,3 +1,13 @@
+/* WERSJA POKAZOWA: dane z panelu demonstracyjnego (localStorage tej przeglądarki) */
+function demoLoad(k){try{var v=localStorage.getItem('jakaDemo.'+k);return v?JSON.parse(v):null}catch(e){return null}}
+function demoSaveMessage(f){
+  try{
+    var m=JSON.parse(localStorage.getItem('jakaDemo.messages')||'[]'),g=function(n){var e=f.elements[n];return e?e.value:''},d=new Date(),p=function(n){return String(n).padStart(2,'0')};
+    m.unshift({name:g('name'),email:g('email'),phone:g('phone'),house:g('house'),message:g('message'),date:d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes()),read:false});
+    localStorage.setItem('jakaDemo.messages',JSON.stringify(m));
+  }catch(e){}
+  return {ok:true,msg:'Wersja pokazowa: wiadomość nie została wysłana, ale zapisała się w panelu demonstracyjnym (w tej przeglądarce).'};
+}
 /* DANE PRZYKŁADOWE: wszystkie domy, metraże i ceny poniżej to makieta. Do podmiany na dane JAKA Sp. z o.o. */
 const HOUSES_DEMO = [
   {id:'A1',type:'Bliźniak',area:128,plot:420,rooms:5,price:null,status:'free'},
@@ -10,7 +20,7 @@ const HOUSES_DEMO = [
   {id:'C2',type:'Wolnostojący',area:156,plot:680,rooms:6,price:null,status:'res'},
   {id:'C3',type:'Wolnostojący',area:168,plot:740,rooms:6,price:null,status:'sold'}
 ];
-const HOUSES = (window.SITE && (window.SITE.houses.length || !window.SITE.demo)) ? window.SITE.houses : HOUSES_DEMO;
+const HOUSES = (function(){var s=demoLoad('houses');return s?s.filter(function(h){return h.published!==false}):HOUSES_DEMO})();
 const STATUS = {free:'Wolny',res:'Rezerwacja',sold:'Sprzedany'};
 const esc = s => String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const nf = new Intl.NumberFormat('pl-PL');
@@ -170,7 +180,7 @@ document.getElementById('contact-form').addEventListener('submit',async e=>{
   btn.disabled=true;m.style.display='block';m.style.color='';m.textContent='Wysyłanie...';
   try{
     const r={};
-    const d={ok:true,msg:'Wersja pokazowa: formularz nie wysyła wiadomości. Dziękujemy za obejrzenie strony.'};
+    const d=demoSaveMessage(f);
     m.textContent=d.msg;m.style.color=d.ok?'#9ee0b6':'#f2a5a0';
     if(d.ok)f.reset();
   }catch(err){m.textContent='Nie udało się wysłać. Spróbuj ponownie później.';m.style.color='#f2a5a0'}
@@ -192,7 +202,7 @@ const PHOTOS_DEMO = [
   {src:'img/gal-8.webp',alt:'Domy z cegły i drewna przy ulicy osiedla o zmierzchu'},
   {src:'img/gal-9.webp',alt:'Ulica osiedla z drzewami i zachodzącym słońcem w tle'}
 ];
-const PHOTOS = (window.SITE && window.SITE.photos && window.SITE.photos.length) ? window.SITE.photos : PHOTOS_DEMO;
+const PHOTOS = (function(){var s=demoLoad('photos');return s?s.filter(function(p){return p.published!==false}).map(function(p){return {src:p.src,alt:p.alt}}):PHOTOS_DEMO})();
 function photoHtml(p,i){
   if(p.src) return `<img src="${esc(p.src)}" alt="${esc(p.alt)}" ${i>0?'loading="lazy"':''}>`;
   return `<svg viewBox="0 0 600 400" preserveAspectRatio="xMidYMid slice" role="img" aria-label="${esc(p.alt)}"><rect width="600" height="400" fill="${p.c}"/><rect y="290" width="600" height="110" fill="#a9ad9a"/><path d="M${120+i*20} 290V190l${110}-60 110 60v100z" fill="#f4f3f1"/><path d="M${105+i*20} 194l125-70 125 70" fill="none" stroke="#2a2a2a" stroke-width="9" stroke-linejoin="round"/><rect x="${215+i*20}" y="225" width="40" height="65" fill="#2a2a2a"/></svg>`;
