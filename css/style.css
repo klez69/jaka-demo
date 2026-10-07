@@ -375,3 +375,11 @@ form.contact label.chk input{width:20px;height:20px;flex:0 0 20px;margin-top:1px
   .lb-top button{padding:14px 16px}
   nav.main a{padding:14px 0}
 }
+
+/* sekcja Inwestor: karta z danymi spółki */
+.facts{background:#f6f5f3;border-radius:var(--r,20px);padding:10px 30px;box-shadow:0 20px 50px rgba(17,17,17,.06)}
+.facts div{display:flex;justify-content:space-between;align-items:baseline;gap:24px;padding:18px 0;border-bottom:1px solid var(--line)}
+.facts div:last-child{border-bottom:0}
+.facts dt{font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--mute);flex:0 0 auto}
+.facts dd{font-family:var(--serif);font-size:1.4rem;line-height:1.25;text-align:right;font-variant-numeric:lining-nums}
+@media(max-width:620px){.facts{padding:6px 20px}.facts div{flex-direction:column;gap:4px}.facts dd{text-align:left}}

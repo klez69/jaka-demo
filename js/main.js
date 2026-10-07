@@ -1,4 +1,4 @@
-/* DANE PRZYKŁADOWE: wszystkie domy, metraże i ceny poniżej to makieta. Do podmiany na dane JAKA Sp. K. */
+/* DANE PRZYKŁADOWE: wszystkie domy, metraże i ceny poniżej to makieta. Do podmiany na dane JAKA Sp. z o.o. */
 const HOUSES_DEMO = [
   {id:'A1',type:'Bliźniak',area:128,plot:420,rooms:5,price:null,status:'free'},
   {id:'A2',type:'Bliźniak',area:128,plot:405,rooms:5,price:null,status:'res'},
