@@ -25,7 +25,7 @@ const STATUS = {free:'Wolny',res:'Rezerwacja',sold:'Sprzedany'};
 const esc = s => String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const nf = new Intl.NumberFormat('pl-PL');
 
-const HOUSE_IMGS = ['img/gal-1.webp','img/gal-3.webp','img/gal-5.webp','img/gal-6.webp','img/gal-7.webp','img/gal-8.webp','img/gal-9.webp'];
+const HOUSE_IMGS = ['img/dom-2.webp','img/dom-3.webp','img/dom-4.webp','img/dom-5.webp','img/dom-1.webp'];
 const IMG_POS = ['50% 50%','25% 50%','75% 50%'];
 const TYPES = ['Szeregowiec','Bliźniak','Wolnostojący'];
 const grid = document.getElementById('houses');
@@ -192,15 +192,11 @@ document.getElementById('year').textContent=new Date().getFullYear();
    Aby użyć prawdziwych zdjęć, ustaw src, np. {src:'img/dom-a1.jpg',alt:'Dom A1, elewacja'}.
    Wpisy bez src dostają grafikę zastępczą. */
 const PHOTOS_DEMO = [
-  {src:'img/gal-1.webp',alt:'Bliźniaki z drewnianymi akcentami o zachodzie słońca'},
-  {src:'img/gal-2.webp',alt:'Osiedle z bramą wjazdową, terenami zielonymi i stawem'},
-  {src:'img/gal-3.webp',alt:'Domy jednorodzinne z drewnianymi ogrodzeniami'},
-  {src:'img/gal-4.webp',alt:'Widok z lotu ptaka na osiedle domów'},
-  {src:'img/gal-5.webp',alt:'Ulica osiedla o zachodzie słońca z drewnianymi elewacjami'},
-  {src:'img/gal-6.webp',alt:'Domy z cegły i tynku przy nowej ulicy o zachodzie słońca'},
-  {src:'img/gal-7.webp',alt:'Zakręt osiedlowej ulicy z domami z cegły i szarego klinkieru'},
-  {src:'img/gal-8.webp',alt:'Domy z cegły i drewna przy ulicy osiedla o zmierzchu'},
-  {src:'img/gal-9.webp',alt:'Ulica osiedla z drzewami i zachodzącym słońcem w tle'}
+  {src:'img/dom-1.webp',alt:'Parterowy dom z grafitowym dachem kopertowym i garażem o zachodzie słońca'},
+  {src:'img/dom-2.webp',alt:'Dom parterowy z grafitowym dachem kopertowym, białą elewacją i garażem, widok od strony podjazdu'},
+  {src:'img/dom-3.webp',alt:'Dom parterowy z garażem w bryle i wejściem w niszy z szarą okładziną'},
+  {src:'img/dom-4.webp',alt:'Dom parterowy z otwartym garażem, podjazdem z kostki i ogrodem'},
+  {src:'img/dom-5.webp',alt:'Dom parterowy z dachem kopertowym wśród zieleni i brzóz'}
 ];
 const PHOTOS = (function(){var s=demoLoad('photos');return s?s.filter(function(p){return p.published!==false}).map(function(p){return {src:p.src,alt:p.alt}}):PHOTOS_DEMO})();
 function photoHtml(p,i){
@@ -270,7 +266,7 @@ lb.addEventListener('touchend',e=>{if(sx===null)return;const d=e.changedTouches[
   const hdr=document.querySelector('header.site'); let tick=false;
   function onScroll(){
     tick=false; const y=window.scrollY;
-    if(!reduce && y<1000) hero.style.setProperty('--py',(y*0.12).toFixed(1)+'px');
+    if(!reduce && y<1000) hero.style.setProperty('--py',(y*0.07).toFixed(1)+'px');
     hdr.classList.toggle('over', y<60 && !nav.classList.contains('open'));
   }
   window.addEventListener('scroll',()=>{ if(!tick){tick=true; requestAnimationFrame(onScroll)} },{passive:true});

@@ -15,15 +15,11 @@
   ].map(function (r) { return { id: r[0], type: r[1], area: r[2], plot: r[3], rooms: r[4], price: null, status: r[5], published: true }; });
 
   var DEF_P = [
-    ['img/gal-1.webp', 'Bliźniaki z drewnianymi akcentami o zachodzie słońca'],
-    ['img/gal-2.webp', 'Osiedle z bramą wjazdową, terenami zielonymi i stawem'],
-    ['img/gal-3.webp', 'Domy jednorodzinne z drewnianymi ogrodzeniami'],
-    ['img/gal-4.webp', 'Widok z lotu ptaka na osiedle domów'],
-    ['img/gal-5.webp', 'Ulica osiedla o zachodzie słońca z drewnianymi elewacjami'],
-    ['img/gal-6.webp', 'Domy z cegły i tynku przy nowej ulicy o zachodzie słońca'],
-    ['img/gal-7.webp', 'Zakręt osiedlowej ulicy z domami z cegły i szarego klinkieru'],
-    ['img/gal-8.webp', 'Domy z cegły i drewna przy ulicy osiedla o zmierzchu'],
-    ['img/gal-9.webp', 'Ulica osiedla z drzewami i zachodzącym słońcem w tle']
+    ['img/dom-1.webp', 'Parterowy dom z grafitowym dachem kopertowym i garażem o zachodzie słońca'],
+    ['img/dom-2.webp', 'Dom parterowy z grafitowym dachem kopertowym, białą elewacją i garażem, widok od strony podjazdu'],
+    ['img/dom-3.webp', 'Dom parterowy z garażem w bryle i wejściem w niszy z szarą okładziną'],
+    ['img/dom-4.webp', 'Dom parterowy z otwartym garażem, podjazdem z kostki i ogrodem'],
+    ['img/dom-5.webp', 'Dom parterowy z dachem kopertowym wśród zieleni i brzóz']
   ].map(function (r) { return { src: r[0], alt: r[1], published: true }; });
 
   var app = document.getElementById('app');
