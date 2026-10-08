@@ -298,6 +298,9 @@ lb.addEventListener('touchend',e=>{if(sx===null)return;const d=e.changedTouches[
   const nf2=new Intl.NumberFormat('pl-PL',{minimumFractionDigits:2,maximumFractionDigits:2});
   const P={
     usable:117.83,total:142.20,garage:19.53,boiler:4.84,
+    /* Obrys zewnętrzny budynku uproszczony do prostokąta, w metrach: {w:szerokość,d:głębokość}.
+       Wpisać wymiary z dokumentacji (null = bez obrysu, schemat jak dotąd). Nie zgadywać wymiarów. */
+    outline:null,
     groups:[
       {name:'Strefa dzienna',c:'#111111',rooms:[['Salon z jadalnią',33.31],['Kuchnia',12.96]]},
       {name:'Strefa nocna',c:'#b08d57',rooms:[['Pokój',13.24],['Pokój',11.47],['Pokój',9.06],['Łazienka',7.82],['Garderoba',2.55]]},
@@ -332,5 +335,62 @@ lb.addEventListener('touchend',e=>{if(sx===null)return;const d=e.changedTouches[
   document.getElementById('pj-rooms').innerHTML='<h3>Pomieszczenia i ich powierzchnie</h3>'+
     P.groups.map(g=>'<div class="rg"><h4><span class="sw" style="background:'+g.c+'"></span>'+esc(g.name)+'</h4>'+
       g.rooms.map(r=>'<div class="room"><span>'+esc(r[0])+'</span><div class="bar"><i style="--w:'+(r[1]/max*100).toFixed(1)+'%;--c:'+g.c+'"></i></div><span class="v">'+nf2.format(r[1])+' m²</span></div>').join('')+'</div>').join('');
-  document.querySelectorAll('#pj-share,#pj-rooms').forEach(el=>io.observe(el));
+  /* schemat proporcjonalny (treemap): pole każdego pomieszczenia ma wielkość zgodną z jego powierzchnią.
+     To NIE jest rzut: rozmieszczenie jest umowne i nie odzwierciedla układu pomieszczeń w domu. */
+  const TXT={'#111111':'#fff','#b08d57':'#fff','#8a8a8a':'#fff','#cfcac1':'#111','#e4dfd5':'#111'};
+  const EXTRA={name:'Garaż i kotłownia',c:'#e4dfd5',rooms:[['Garaż',P.garage],['Kotłownia',P.boiler]]};
+  function squarify(items,x,y,w,h){
+    const out=[]; let rest=items.slice();
+    const worst=(row,side)=>{const s=row.reduce((a,b)=>a+b.a,0),mx=Math.max(...row.map(r=>r.a)),mn=Math.min(...row.map(r=>r.a));return Math.max(side*side*mx/(s*s),s*s/(side*side*mn))};
+    while(rest.length){
+      const side=Math.min(w,h); const row=[rest[0]]; let i=1;
+      while(i<rest.length && worst(row.concat(rest[i]),side)<=worst(row,side)){row.push(rest[i]);i++}
+      const s=row.reduce((a,b)=>a+b.a,0);
+      if(w>=h){const cw=s/h; let cy=y; row.forEach(r=>{const rh=r.a/cw;out.push(Object.assign({},r,{x:x,y:cy,w:cw,h:rh}));cy+=rh}); x+=cw; w-=cw;}
+      else{const rh=s/w; let cx=x; row.forEach(r=>{const rw=r.a/rh;out.push(Object.assign({},r,{x:cx,y:y,w:rw,h:rh}));cx+=rw}); y+=rh; h-=rh;}
+      rest=rest.slice(row.length);
+    }
+    return out;
+  }
+  function layout(W,H,groups){
+    const tots=groups.map(g=>sum(g.rooms)), total=tots.reduce((a,b)=>a+b,0), area=W*H;
+    const gItems=groups.map((g,i)=>({g:g,a:tots[i]/total*area})).sort((a,b)=>b.a-a.a);
+    const rects=[]; let n=0;
+    squarify(gItems,0,0,W,H).forEach(gr=>{
+      const gt=sum(gr.g.rooms);
+      const rItems=gr.g.rooms.map(r=>({name:r[0],v:r[1],c:gr.g.c,a:r[1]/gt*(gr.w*gr.h)})).sort((a,b)=>b.v-a.v);
+      squarify(rItems,gr.x,gr.y,gr.w,gr.h).forEach(r=>{r.i=n++;rects.push(r)});
+    });
+    return rects;
+  }
+  const sch=document.getElementById('pj-schema');
+  let schMobile=null;
+  function drawSchema(){
+    if(!sch) return;
+    const mobile=window.matchMedia('(max-width:700px)').matches;
+    if(mobile===schMobile) return; schMobile=mobile;
+    const O=P.outline&&P.outline.w>0&&P.outline.d>0?P.outline:null;
+    const groups=O?P.groups.concat([EXTRA]):P.groups;
+    const W=100,H=O?100*O.d/O.w:(mobile?125:50);
+    const boxes=layout(W,H,groups).map(r=>'<div class="rm" title="'+esc(r.name)+', '+nf2.format(r.v)+' m²" style="left:'+(r.x/W*100).toFixed(3)+'%;top:'+(r.y/H*100).toFixed(3)+'%;width:'+(r.w/W*100).toFixed(3)+'%;height:'+(r.h/H*100).toFixed(3)+'%;background:'+r.c+';color:'+(TXT[r.c]||'#fff')+';--d:'+(r.i*55)+'ms"><span>'+esc(r.name)+'</span><b>'+nf2.format(r.v)+' m²</b></div>').join('');
+    const schBox='<div class="sch" '+(O?'style="aspect-ratio:'+O.w+'/'+O.d+'" ':'')+'role="img" aria-label="Schemat powierzchni pomieszczeń, pola proporcjonalne do powierzchni">'+boxes+'</div>';
+    const dimFmt=v=>nf2.format(v)+' m';
+    const body=O
+      ? '<div class="dim-wrap"><div class="dim dim-top"><span>'+dimFmt(O.w)+'</span></div><div class="dim-row"><div class="dim dim-left"><span>'+dimFmt(O.d)+'</span></div>'+schBox+'</div></div>'
+      : schBox;
+    const note=O
+      ? 'Obrys zewnętrzny uproszczony do prostokąta, wymiary w metrach. Pole obejmuje też garaż, kotłownię i grubość ścian. Nazwy najmniejszych pól są w liście pomieszczeń poniżej.'
+      : 'Garaż (19,53 m²) i kotłownia (4,84 m²) są poza powierzchnią użytkową i nie są pokazane. Nazwy najmniejszych pól są w liście pomieszczeń poniżej.';
+    sch.innerHTML='<h3>'+(O?'Schemat powierzchni w obrysie budynku':'Schemat powierzchni pomieszczeń')+'</h3><p class="pj-sub">Wielkość pola odpowiada powierzchni pomieszczenia. To nie jest rzut: rozmieszczenie pól jest schematyczne i nie pokazuje prawdziwego układu domu.</p>'+
+      body+'<ul class="sch-legend">'+groups.map(g=>'<li><span class="sw" style="background:'+g.c+'"></span>'+esc(g.name)+'</li>').join('')+'<li class="sch-note">'+note+'</li></ul>';
+    requestAnimationFrame(()=>sch.querySelectorAll('.rm').forEach(el=>{
+      const w=el.offsetWidth,h=el.offsetHeight;
+      if(w<44) el.classList.add('nano');
+      if(w<72||h<48) el.classList.add('micro');
+      if(w<120||h<72) el.classList.add('tiny');
+    }));
+  }
+  drawSchema();
+  window.matchMedia('(max-width:700px)').addEventListener('change',()=>{schMobile=null;drawSchema()});
+  document.querySelectorAll('#pj-schema,#pj-share,#pj-rooms').forEach(el=>io.observe(el));
 })();
