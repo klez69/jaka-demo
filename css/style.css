@@ -470,3 +470,6 @@ nav.main ul{gap:22px}
 @media(max-width:700px){.dim-top{margin-left:30px}.dim-left{width:22px;flex-basis:22px}.dim{font-size:.74rem}}
 
 .rm.nano span,.rm.nano b{display:none}
+
+.pj-factsbox{margin:-28px 0 60px}
+.pj-factsbox h3{margin-bottom:12px}

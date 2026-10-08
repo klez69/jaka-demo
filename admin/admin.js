@@ -110,7 +110,7 @@
     var form = '<h2>' + (e ? 'Edycja domu ' + esc(e.id) : 'Dodaj dom') + '</h2><div class="card"><form class="f" data-form="house">' +
       '<div><label>Numer</label><input name="id" required maxlength="20" value="' + esc(v('id')) + '"></div>' +
       '<div><label>Typ</label><select name="type">' + TYPES.map(function (t) { return '<option' + (v('type') === t ? ' selected' : '') + '>' + t + '</option>'; }).join('') + '</select></div>' +
-      '<div><label>Powierzchnia (m²)</label><input type="number" name="area" required min="20" step="0.01" value="' + esc(v('area')) + '"></div>' +
+      '<div><label>Powierzchnia mieszkalna (m²)</label><input type="number" name="area" required min="20" step="0.01" value="' + esc(v('area')) + '"></div>' +
       '<div><label>Działka (m²)</label><input type="number" name="plot" required min="0" value="' + esc(v('plot', 0)) + '"></div>' +
       '<div><label>Pokoje</label><input type="number" name="rooms" required min="1" value="' + esc(v('rooms')) + '"></div>' +
       '<div><label>Cena brutto (zł, puste = na zapytanie)</label><input type="number" name="price" min="0" value="' + esc(v('price')) + '"></div>' +

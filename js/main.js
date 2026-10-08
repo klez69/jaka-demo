@@ -117,7 +117,7 @@ function showModal(i){
   document.getElementById('hm-type').textContent=h.type;
   document.getElementById('hm-title').textContent='Dom '+h.id;
   document.getElementById('hm-specs').innerHTML=
-    `<div><dt>Powierzchnia</dt><dd>${esc(nf.format(h.area))} m²</dd></div><div><dt>Działka</dt><dd>${esc(h.plot)} m²</dd></div>`+
+    `<div><dt>Pow. mieszkalna</dt><dd>${esc(nf.format(h.area))} m²</dd></div><div><dt>Działka</dt><dd>${esc(h.plot)} m²</dd></div>`+
     `<div><dt>Pokoje</dt><dd>${esc(h.rooms)}</dd></div><div><dt>Zabudowa</dt><dd>${esc(h.type)}</dd></div>`;
   document.getElementById('hm-price').textContent=priceTxt(h);
   const ask=document.getElementById('hm-ask');
@@ -158,7 +158,7 @@ nav.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>nav.classLis
   const free=HOUSES.filter(h=>h.status==='free').length;
   const rooms=Math.max(...HOUSES.map(h=>h.rooms));
   const tiles=[[HOUSES.length,'domów'],[free,'wolnych']];
-  if(minA===maxA){ tiles.push([minA,'m² powierzchni użytkowej'],[rooms,'pokoje']); }
+  if(minA===maxA){ tiles.push([minA,'m² powierzchni mieszkalnej'],[rooms,'pokoje']); }
   else { tiles.push([minA,'m² od'],[maxA,'m² do']); }
   box.innerHTML=tiles.map(t=>'<div class="stat reveal"><b data-count="'+t[0]+'" data-dec="'+(Number.isInteger(t[0])?0:2)+'">0</b><span>'+esc(t[1])+'</span></div>').join('');
 })();
@@ -291,21 +291,21 @@ lb.addEventListener('touchend',e=>{if(sx===null)return;const d=e.changedTouches[
 
 
 /* ===== SEKCJA PROJEKT: wizualizacja danych z dokumentacji projektowej =====
-   Dane liczbowe (powierzchnie pomieszczeń) według projektu. Suma pomieszczeń użytkowych = 117,83 m².
-   Garaż i kotłownia są poza powierzchnią użytkową, razem z nią dają 142,20 m² parteru. */
+   Dane z opisu technicznego projektu: powierzchnia mieszkalna 117,83 m² (suma 13 pomieszczeń), garaż 19,53 m²,
+   kotłownia 4,84 m², razem powierzchnia użytkowa 142,20 m². Powierzchnia zabudowy 199,77 m², całkowita 182,07 m². */
 (function(){
   const box=document.getElementById('pj-tiles'); if(!box) return;
   const nf2=new Intl.NumberFormat('pl-PL',{minimumFractionDigits:2,maximumFractionDigits:2});
   const P={
-    usable:117.83,total:142.20,garage:19.53,boiler:4.84,
-    /* Obrys zewnętrzny budynku uproszczony do prostokąta, w metrach: {w:szerokość,d:głębokość}.
-       Wpisać wymiary z dokumentacji (null = bez obrysu, schemat jak dotąd). Nie zgadywać wymiarów. */
-    outline:null,
+    usable:117.83,total:142.20,garage:19.53,boiler:4.84,footprint:199.77,full:182.07,
+    /* Obrys zewnętrzny budynku uproszczony do prostokąta, w metrach: długość 16,60 i szerokość 12,00
+       (opis techniczny projektu). null = bez obrysu. Nie zgadywać wymiarów. */
+    outline:{w:16.60,d:12.00,wl:'długość',dl:'szerokość'},
     groups:[
       {name:'Strefa dzienna',c:'#111111',rooms:[['Salon z jadalnią',33.31],['Kuchnia',12.96]]},
       {name:'Strefa nocna',c:'#b08d57',rooms:[['Pokój',13.24],['Pokój',11.47],['Pokój',9.06],['Łazienka',7.82],['Garderoba',2.55]]},
       {name:'Komunikacja',c:'#8a8a8a',rooms:[['Korytarz',9.91],['Wiatrołap',6.25],['Hol',4.41]]},
-      {name:'Pomieszczenia pomocnicze',c:'#cfcac1',rooms:[['Pralnia',3.11],['Toaleta',2.01],['Spiżarnia',1.73]]}
+      {name:'Pomieszczenia pomocnicze',c:'#cfcac1',rooms:[['Pom. gospodarcze',3.11],['Toaleta',2.01],['Spiżarka',1.73]]}
     ]
   };
   const sum=a=>a.reduce((s,r)=>s+r[1],0);
@@ -317,16 +317,28 @@ lb.addEventListener('touchend',e=>{if(sx===null)return;const d=e.changedTouches[
 
   const tile=(v,u,l,sub)=>'<div class="pj-tile"><b>'+v+(u?'<small>'+u+'</small>':'')+'</b><span>'+l+'</span>'+(sub?'<em>'+sub+'</em>':'')+'</div>';
   box.innerHTML=
-    tile(nf2.format(P.usable),'m²','powierzchnia użytkowa','suma pomieszczeń mieszkalnych')+
-    tile(nf2.format(P.total),'m²','parter razem','z garażem i kotłownią')+
+    tile(nf2.format(P.usable),'m²','powierzchnia mieszkalna','suma pomieszczeń mieszkalnych')+
+    tile(nf2.format(P.total),'m²','powierzchnia użytkowa','z garażem i kotłownią')+
+    tile(nf2.format(P.footprint),'m²','powierzchnia zabudowy','obrys budynku')+
     tile('4','','pokoje','salon z jadalnią i trzy pokoje')+
     tile('2','','łazienka i toaleta','')+
     tile(nf2.format(P.garage),'m²','garaż w bryle domu','jednostanowiskowy')+
+    tile('16,60 × 12,00','m','wymiary budynku','długość × szerokość')+
+    tile('7,49','m','wysokość do kalenicy','dach czterospadowy 30°')+
     tile('20,0 × 24,6','m','minimalne wymiary działki','');
 
+  const facts=document.getElementById('pj-facts');
+  if(facts) facts.innerHTML='<h3>Dane techniczne budynku</h3><dl class="facts">'+[
+    ['Rodzaj','budynek mieszkalny jednorodzinny, wolnostojący'],
+    ['Kondygnacje','jedna nadziemna (parter), bez podpiwniczenia'],
+    ['Dach','czterospadowy, kąt nachylenia połaci 30°'],
+    ['Kubatura','1063,54 m³'],
+    ['Powierzchnia całkowita',nf2.format(P.full)+' m²']
+  ].map(r=>'<div><dt>'+r[0]+'</dt><dd>'+r[1]+'</dd></div>').join('')+'</dl>';
+
   const share=document.getElementById('pj-share');
-  share.innerHTML='<h3>Podział powierzchni użytkowej</h3><p class="pj-sub">Jak rozkłada się '+nf2.format(P.usable)+' m² domu</p>'+
-    '<div class="stack" role="img" aria-label="Podział powierzchni użytkowej na strefy">'+
+  share.innerHTML='<h3>Podział powierzchni mieszkalnej</h3><p class="pj-sub">Jak rozkłada się '+nf2.format(P.usable)+' m² części mieszkalnej domu</p>'+
+    '<div class="stack" role="img" aria-label="Podział powierzchni mieszkalnej na strefy">'+
     P.groups.map((g,i)=>'<i style="--w:'+(totals[i]/P.usable*100).toFixed(2)+'%;background:'+g.c+'"></i>').join('')+'</div>'+
     '<ul class="legend">'+P.groups.map((g,i)=>'<li><span class="sw" style="background:'+g.c+'"></span>'+esc(g.name)+'<b>'+nf2.format(totals[i])+' m² <small>('+fl[i]+'%)</small></b></li>').join('')+'</ul>'+
     '<div class="pj-extra"><div><span>Garaż</span><b>'+nf2.format(P.garage)+' m²</b></div><div><span>Kotłownia</span><b>'+nf2.format(P.boiler)+' m²</b></div></div>';
@@ -339,6 +351,8 @@ lb.addEventListener('touchend',e=>{if(sx===null)return;const d=e.changedTouches[
      To NIE jest rzut: rozmieszczenie jest umowne i nie odzwierciedla układu pomieszczeń w domu. */
   const TXT={'#111111':'#fff','#b08d57':'#fff','#8a8a8a':'#fff','#cfcac1':'#111','#e4dfd5':'#111'};
   const EXTRA={name:'Garaż i kotłownia',c:'#e4dfd5',rooms:[['Garaż',P.garage],['Kotłownia',P.boiler]]};
+  const FILL={name:'Ściany i pozostała część obrysu',c:'#f1eee8',rooms:[['Ściany i pozostała część obrysu',+(P.footprint-P.total).toFixed(2)]]};
+  TXT['#f1eee8']='#111';
   function squarify(items,x,y,w,h){
     const out=[]; let rest=items.slice();
     const worst=(row,side)=>{const s=row.reduce((a,b)=>a+b.a,0),mx=Math.max(...row.map(r=>r.a)),mn=Math.min(...row.map(r=>r.a));return Math.max(side*side*mx/(s*s),s*s/(side*side*mn))};
@@ -370,17 +384,17 @@ lb.addEventListener('touchend',e=>{if(sx===null)return;const d=e.changedTouches[
     const mobile=window.matchMedia('(max-width:700px)').matches;
     if(mobile===schMobile) return; schMobile=mobile;
     const O=P.outline&&P.outline.w>0&&P.outline.d>0?P.outline:null;
-    const groups=O?P.groups.concat([EXTRA]):P.groups;
+    const groups=O?P.groups.concat(P.footprint>P.total?[EXTRA,FILL]:[EXTRA]):P.groups;
     const W=100,H=O?100*O.d/O.w:(mobile?125:50);
     const boxes=layout(W,H,groups).map(r=>'<div class="rm" title="'+esc(r.name)+', '+nf2.format(r.v)+' m²" style="left:'+(r.x/W*100).toFixed(3)+'%;top:'+(r.y/H*100).toFixed(3)+'%;width:'+(r.w/W*100).toFixed(3)+'%;height:'+(r.h/H*100).toFixed(3)+'%;background:'+r.c+';color:'+(TXT[r.c]||'#fff')+';--d:'+(r.i*55)+'ms"><span>'+esc(r.name)+'</span><b>'+nf2.format(r.v)+' m²</b></div>').join('');
     const schBox='<div class="sch" '+(O?'style="aspect-ratio:'+O.w+'/'+O.d+'" ':'')+'role="img" aria-label="Schemat powierzchni pomieszczeń, pola proporcjonalne do powierzchni">'+boxes+'</div>';
     const dimFmt=v=>nf2.format(v)+' m';
     const body=O
-      ? '<div class="dim-wrap"><div class="dim dim-top"><span>'+dimFmt(O.w)+'</span></div><div class="dim-row"><div class="dim dim-left"><span>'+dimFmt(O.d)+'</span></div>'+schBox+'</div></div>'
+      ? '<div class="dim-wrap"><div class="dim dim-top"><span>'+(O.wl?O.wl+' ':'')+dimFmt(O.w)+'</span></div><div class="dim-row"><div class="dim dim-left"><span>'+(O.dl?O.dl+' ':'')+dimFmt(O.d)+'</span></div>'+schBox+'</div></div>'
       : schBox;
     const note=O
-      ? 'Obrys zewnętrzny uproszczony do prostokąta, wymiary w metrach. Pole obejmuje też garaż, kotłownię i grubość ścian. Nazwy najmniejszych pól są w liście pomieszczeń poniżej.'
-      : 'Garaż (19,53 m²) i kotłownia (4,84 m²) są poza powierzchnią użytkową i nie są pokazane. Nazwy najmniejszych pól są w liście pomieszczeń poniżej.';
+      ? 'Obrys zewnętrzny uproszczony do prostokąta '+nf2.format(O.w)+' × '+nf2.format(O.d)+' m. Powierzchnia zabudowy według projektu to '+nf2.format(P.footprint)+' m², z czego pomieszczenia zajmują '+nf2.format(P.total)+' m² (razem z garażem i kotłownią), a resztę stanowią ściany i pozostałe części obrysu. Nazwy najmniejszych pól są w liście pomieszczeń poniżej.'
+      : 'Garaż (19,53 m²) i kotłownia (4,84 m²) są poza powierzchnią mieszkalną i nie są pokazane. Nazwy najmniejszych pól są w liście pomieszczeń poniżej.';
     sch.innerHTML='<h3>'+(O?'Schemat powierzchni w obrysie budynku':'Schemat powierzchni pomieszczeń')+'</h3><p class="pj-sub">Wielkość pola odpowiada powierzchni pomieszczenia. To nie jest rzut: rozmieszczenie pól jest schematyczne i nie pokazuje prawdziwego układu domu.</p>'+
       body+'<ul class="sch-legend">'+groups.map(g=>'<li><span class="sw" style="background:'+g.c+'"></span>'+esc(g.name)+'</li>').join('')+'<li class="sch-note">'+note+'</li></ul>';
     requestAnimationFrame(()=>sch.querySelectorAll('.rm').forEach(el=>{
