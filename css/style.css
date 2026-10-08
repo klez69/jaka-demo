@@ -429,3 +429,7 @@ nav.main ul{gap:22px}
 @media(min-width:1021px) and (max-width:1250px){nav.main ul{gap:16px}nav.main a{letter-spacing:.1em}.phone{display:none}}
 .pj-split>div:first-child{position:sticky;top:110px}
 @media(max-width:1020px){.pj-split>div:first-child{position:static}}
+
+.times li{gap:24px}
+.times li span:last-child{text-align:right}
+@media(max-width:520px){.times li{flex-direction:column;gap:2px}.times li span:last-child{text-align:left;color:var(--mute)}}
