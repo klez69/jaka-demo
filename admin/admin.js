@@ -9,9 +9,7 @@
   var MAX_UPLOADS = 6;
 
   var DEF_H = [
-    ['A1', 'Bliźniak', 128, 420, 5, 'free'], ['A2', 'Bliźniak', 128, 405, 5, 'res'], ['A3', 'Bliźniak', 132, 450, 5, 'free'],
-    ['B1', 'Szeregowiec', 104, 260, 4, 'free'], ['B2', 'Szeregowiec', 104, 245, 4, 'sold'], ['B3', 'Szeregowiec', 110, 290, 4, 'free'],
-    ['C1', 'Wolnostojący', 156, 700, 6, 'free'], ['C2', 'Wolnostojący', 156, 680, 6, 'res'], ['C3', 'Wolnostojący', 168, 740, 6, 'sold']
+    ['A1', 'Wolnostojący', 117.83, 520, 4, 'free'], ['A2', 'Wolnostojący', 117.83, 540, 4, 'res'], ['A3', 'Wolnostojący', 117.83, 505, 4, 'free'], ['B1', 'Wolnostojący', 117.83, 560, 4, 'free'], ['B2', 'Wolnostojący', 117.83, 530, 4, 'sold'], ['B3', 'Wolnostojący', 117.83, 610, 4, 'free'], ['C1', 'Wolnostojący', 117.83, 495, 4, 'free'], ['C2', 'Wolnostojący', 117.83, 580, 4, 'res'], ['C3', 'Wolnostojący', 117.83, 700, 4, 'sold']
   ].map(function (r) { return { id: r[0], type: r[1], area: r[2], plot: r[3], rooms: r[4], price: null, status: r[5], published: true }; });
 
   var DEF_P = [
@@ -99,7 +97,7 @@
     if (state.editId !== null) e = H[state.editId] || null;
     var v = function (k, d) { return e && e[k] != null ? e[k] : (d == null ? '' : d); };
     var rows = H.map(function (h, i) {
-      return '<tr><td><b>' + esc(h.id) + '</b></td><td>' + esc(h.type) + '</td><td>' + esc(h.area) + '</td><td>' + esc(h.plot) + '</td><td>' + esc(h.rooms) + '</td>' +
+      return '<tr><td><b>' + esc(h.id) + '</b></td><td>' + esc(h.type) + '</td><td>' + esc(nf(h.area)) + '</td><td>' + esc(h.plot) + '</td><td>' + esc(h.rooms) + '</td>' +
         '<td>' + (h.price ? nf(h.price) + ' zł' : 'na zapytanie') + '</td><td><select data-act="status" data-i="' + i + '" style="width:auto">' +
         Object.keys(STATUS).map(function (k) { return '<option value="' + k + '"' + (h.status === k ? ' selected' : '') + '>' + STATUS[k] + '</option>'; }).join('') +
         '</select></td><td>' + (h.published !== false ? 'tak' : 'nie') + '</td><td class="row-actions">' +
@@ -108,7 +106,7 @@
     var form = '<h2>' + (e ? 'Edycja domu ' + esc(e.id) : 'Dodaj dom') + '</h2><div class="card"><form class="f" data-form="house">' +
       '<div><label>Numer</label><input name="id" required maxlength="20" value="' + esc(v('id')) + '"></div>' +
       '<div><label>Typ</label><select name="type">' + TYPES.map(function (t) { return '<option' + (v('type') === t ? ' selected' : '') + '>' + t + '</option>'; }).join('') + '</select></div>' +
-      '<div><label>Powierzchnia (m²)</label><input type="number" name="area" required min="20" value="' + esc(v('area')) + '"></div>' +
+      '<div><label>Powierzchnia (m²)</label><input type="number" name="area" required min="20" step="0.01" value="' + esc(v('area')) + '"></div>' +
       '<div><label>Działka (m²)</label><input type="number" name="plot" required min="0" value="' + esc(v('plot', 0)) + '"></div>' +
       '<div><label>Pokoje</label><input type="number" name="rooms" required min="1" value="' + esc(v('rooms')) + '"></div>' +
       '<div><label>Cena brutto (zł, puste = na zapytanie)</label><input type="number" name="price" min="0" value="' + esc(v('price')) + '"></div>' +
@@ -187,7 +185,7 @@
     }
     if (kind === 'house') {
       var H = load(K.h, DEF_H);
-      var code = String(d.get('id')).trim(), type = String(d.get('type')), area = parseInt(d.get('area'), 10), plot = parseInt(d.get('plot'), 10),
+      var code = String(d.get('id')).trim(), type = String(d.get('type')), area = Math.round(parseFloat(String(d.get('area')).replace(',', '.')) * 100) / 100, plot = parseInt(d.get('plot'), 10),
         rooms = parseInt(d.get('rooms'), 10), priceRaw = String(d.get('price')).trim(), status = String(d.get('status'));
       var price = priceRaw === '' ? null : parseInt(priceRaw, 10), err = null;
       if (!/^[A-Za-z0-9-]{1,20}$/.test(code)) err = 'Numer domu: 1 do 20 znaków (litery, cyfry, myślnik).';

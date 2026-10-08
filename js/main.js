@@ -10,15 +10,15 @@ function demoSaveMessage(f){
 }
 /* DANE PRZYKŁADOWE: wszystkie domy, metraże i ceny poniżej to makieta. Do podmiany na dane JAKA Sp. z o.o. */
 const HOUSES_DEMO = [
-  {id:'A1',type:'Bliźniak',area:128,plot:420,rooms:5,price:null,status:'free'},
-  {id:'A2',type:'Bliźniak',area:128,plot:405,rooms:5,price:null,status:'res'},
-  {id:'A3',type:'Bliźniak',area:132,plot:450,rooms:5,price:null,status:'free'},
-  {id:'B1',type:'Szeregowiec',area:104,plot:260,rooms:4,price:null,status:'free'},
-  {id:'B2',type:'Szeregowiec',area:104,plot:245,rooms:4,price:null,status:'sold'},
-  {id:'B3',type:'Szeregowiec',area:110,plot:290,rooms:4,price:null,status:'free'},
-  {id:'C1',type:'Wolnostojący',area:156,plot:700,rooms:6,price:null,status:'free'},
-  {id:'C2',type:'Wolnostojący',area:156,plot:680,rooms:6,price:null,status:'res'},
-  {id:'C3',type:'Wolnostojący',area:168,plot:740,rooms:6,price:null,status:'sold'}
+  {id:'A1',type:'Wolnostojący',area:117.83,plot:520,rooms:4,price:null,status:'free'},
+  {id:'A2',type:'Wolnostojący',area:117.83,plot:540,rooms:4,price:null,status:'res'},
+  {id:'A3',type:'Wolnostojący',area:117.83,plot:505,rooms:4,price:null,status:'free'},
+  {id:'B1',type:'Wolnostojący',area:117.83,plot:560,rooms:4,price:null,status:'free'},
+  {id:'B2',type:'Wolnostojący',area:117.83,plot:530,rooms:4,price:null,status:'sold'},
+  {id:'B3',type:'Wolnostojący',area:117.83,plot:610,rooms:4,price:null,status:'free'},
+  {id:'C1',type:'Wolnostojący',area:117.83,plot:495,rooms:4,price:null,status:'free'},
+  {id:'C2',type:'Wolnostojący',area:117.83,plot:580,rooms:4,price:null,status:'res'},
+  {id:'C3',type:'Wolnostojący',area:117.83,plot:700,rooms:4,price:null,status:'sold'}
 ];
 const HOUSES = (function(){var s=demoLoad('houses');return s?s.filter(function(h){return h.published!==false}):HOUSES_DEMO})();
 const STATUS = {free:'Wolny',res:'Rezerwacja',sold:'Sprzedany'};
@@ -52,7 +52,11 @@ const imgFor = h => HOUSE_IMGS[Math.max(0, HOUSES.indexOf(h)) % HOUSE_IMGS.lengt
 })();
 
 /* przyciski typu zabudowy z licznikami */
-segType.innerHTML = [''].concat(TYPES).map(t=>{
+const TYPES_USED = TYPES.filter(t=>HOUSES.some(h=>h.type===t));
+if(TYPES_USED.length<2) segType.style.display='none';
+const bucket = h => h.area<120?'s':h.area<150?'m':'l';
+if(new Set(HOUSES.map(bucket)).size<2) fArea.style.display='none';
+segType.innerHTML = [''].concat(TYPES_USED).map(t=>{
   const n = t ? HOUSES.filter(h=>h.type===t).length : HOUSES.length;
   return `<button type="button" data-v="${esc(t)}" class="${t===''?'on':''}">${t||'Wszystkie'} <i>${n}</i></button>`;
 }).join('');
@@ -87,7 +91,7 @@ function render(){
       <div class="body">
         <div class="ctype">${esc(h.type)}</div>
         <h3>Dom ${esc(h.id)}</h3>
-        <div class="meta"><span><b>${esc(h.area)}</b> m²</span><span>działka <b>${esc(h.plot)}</b> m²</span><span><b>${esc(h.rooms)}</b> pokoi</span></div>
+        <div class="meta"><span><b>${esc(nf.format(h.area))}</b> m²</span><span>działka <b>${esc(h.plot)}</b> m²</span><span><b>${esc(h.rooms)}</b> pokoi</span></div>
         <div class="row"><span class="price">${priceTxt(h)}</span><button type="button" class="ask" data-house="${esc(h.id)}">Zapytaj</button></div>
       </div></article>`).join('');
 }
@@ -116,7 +120,7 @@ function showModal(i){
   document.getElementById('hm-type').textContent=h.type;
   document.getElementById('hm-title').textContent='Dom '+h.id;
   document.getElementById('hm-specs').innerHTML=
-    `<div><dt>Powierzchnia</dt><dd>${esc(h.area)} m²</dd></div><div><dt>Działka</dt><dd>${esc(h.plot)} m²</dd></div>`+
+    `<div><dt>Powierzchnia</dt><dd>${esc(nf.format(h.area))} m²</dd></div><div><dt>Działka</dt><dd>${esc(h.plot)} m²</dd></div>`+
     `<div><dt>Pokoje</dt><dd>${esc(h.rooms)}</dd></div><div><dt>Zabudowa</dt><dd>${esc(h.type)}</dd></div>`;
   document.getElementById('hm-price').textContent=priceTxt(h);
   const ask=document.getElementById('hm-ask');
@@ -258,7 +262,7 @@ lb.addEventListener('touchend',e=>{if(sx===null)return;const d=e.changedTouches[
   const free=HOUSES.filter(h=>h.status==='free');
   if(free.length){
     document.getElementById('hc-num').textContent=free.length;
-    document.getElementById('hc-sub').textContent='wolnych domów, od '+Math.min(...free.map(h=>h.area))+' m²';
+    document.getElementById('hc-sub').textContent='wolnych domów, od '+nf.format(Math.min(...free.map(h=>h.area)))+' m²';
     document.getElementById('hero-card').hidden=false;
   }
 
@@ -272,4 +276,50 @@ lb.addEventListener('touchend',e=>{if(sx===null)return;const d=e.changedTouches[
   window.addEventListener('scroll',()=>{ if(!tick){tick=true; requestAnimationFrame(onScroll)} },{passive:true});
   burger.addEventListener('click',onScroll);
   onScroll();
+})();
+
+
+/* ===== SEKCJA PROJEKT: wizualizacja danych z dokumentacji projektowej =====
+   Dane liczbowe (powierzchnie pomieszczeń) według projektu. Suma pomieszczeń użytkowych = 117,83 m².
+   Garaż i kotłownia są poza powierzchnią użytkową, razem z nią dają 142,20 m² parteru. */
+(function(){
+  const box=document.getElementById('pj-tiles'); if(!box) return;
+  const nf2=new Intl.NumberFormat('pl-PL',{minimumFractionDigits:2,maximumFractionDigits:2});
+  const P={
+    usable:117.83,total:142.20,garage:19.53,boiler:4.84,
+    groups:[
+      {name:'Strefa dzienna',c:'#111111',rooms:[['Salon z jadalnią',33.31],['Kuchnia',12.96]]},
+      {name:'Strefa nocna',c:'#b08d57',rooms:[['Pokój',13.24],['Pokój',11.47],['Pokój',9.06],['Łazienka',7.82],['Garderoba',2.55]]},
+      {name:'Komunikacja',c:'#8a8a8a',rooms:[['Korytarz',9.91],['Wiatrołap',6.25],['Hol',4.41]]},
+      {name:'Pomieszczenia pomocnicze',c:'#cfcac1',rooms:[['Pralnia',3.11],['Toaleta',2.01],['Spiżarnia',1.73]]}
+    ]
+  };
+  const sum=a=>a.reduce((s,r)=>s+r[1],0);
+  const totals=P.groups.map(g=>sum(g.rooms));
+  /* udziały procentowe metodą największej reszty, żeby suma wynosiła 100 */
+  const raw=totals.map(t=>t/P.usable*100), fl=raw.map(Math.floor);
+  let left=100-fl.reduce((a,b)=>a+b,0);
+  raw.map((v,i)=>[v-fl[i],i]).sort((a,b)=>b[0]-a[0]).slice(0,left).forEach(p=>fl[p[1]]++);
+
+  const tile=(v,u,l,sub)=>'<div class="pj-tile"><b>'+v+(u?'<small>'+u+'</small>':'')+'</b><span>'+l+'</span>'+(sub?'<em>'+sub+'</em>':'')+'</div>';
+  box.innerHTML=
+    tile(nf2.format(P.usable),'m²','powierzchnia użytkowa','suma pomieszczeń mieszkalnych')+
+    tile(nf2.format(P.total),'m²','parter razem','z garażem i kotłownią')+
+    tile('4','','pokoje','salon z jadalnią i trzy pokoje')+
+    tile('2','','łazienka i toaleta','')+
+    tile(nf2.format(P.garage),'m²','garaż w bryle domu','jednostanowiskowy')+
+    tile('20,0 × 24,6','m','minimalne wymiary działki','');
+
+  const share=document.getElementById('pj-share');
+  share.innerHTML='<h3>Podział powierzchni użytkowej</h3><p class="pj-sub">Jak rozkłada się '+nf2.format(P.usable)+' m² domu</p>'+
+    '<div class="stack" role="img" aria-label="Podział powierzchni użytkowej na strefy">'+
+    P.groups.map((g,i)=>'<i style="--w:'+(totals[i]/P.usable*100).toFixed(2)+'%;background:'+g.c+'"></i>').join('')+'</div>'+
+    '<ul class="legend">'+P.groups.map((g,i)=>'<li><span class="sw" style="background:'+g.c+'"></span>'+esc(g.name)+'<b>'+nf2.format(totals[i])+' m² <small>('+fl[i]+'%)</small></b></li>').join('')+'</ul>'+
+    '<div class="pj-extra"><div><span>Garaż</span><b>'+nf2.format(P.garage)+' m²</b></div><div><span>Kotłownia</span><b>'+nf2.format(P.boiler)+' m²</b></div></div>';
+
+  const max=Math.max(...P.groups.flatMap(g=>g.rooms.map(r=>r[1])));
+  document.getElementById('pj-rooms').innerHTML='<h3>Pomieszczenia i ich powierzchnie</h3>'+
+    P.groups.map(g=>'<div class="rg"><h4><span class="sw" style="background:'+g.c+'"></span>'+esc(g.name)+'</h4>'+
+      g.rooms.map(r=>'<div class="room"><span>'+esc(r[0])+'</span><div class="bar"><i style="--w:'+(r[1]/max*100).toFixed(1)+'%;--c:'+g.c+'"></i></div><span class="v">'+nf2.format(r[1])+' m²</span></div>').join('')+'</div>').join('');
+  document.querySelectorAll('#pj-share,#pj-rooms').forEach(el=>io.observe(el));
 })();
