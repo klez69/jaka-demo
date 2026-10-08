@@ -4,12 +4,16 @@
 (function () {
   'use strict';
   var K = { h: 'jakaDemo.houses', p: 'jakaDemo.photos', m: 'jakaDemo.messages', a: 'jakaDemo.auth' };
+  /* Wersja danych demonstracyjnych. Po zmianie domyślnych domów lub zdjęć zwiększ numer: zapisane wcześniej
+     w przeglądarce domy i zdjęcia zostaną odrzucone (wiadomości zostają). Ten sam numer jest w tools/build-demo.js. */
+  var DEMO_V = '4';
+  try { if (localStorage.getItem('jakaDemo.v') !== DEMO_V) { localStorage.removeItem(K.h); localStorage.removeItem(K.p); localStorage.setItem('jakaDemo.v', DEMO_V); } } catch (e) {}
   var TYPES = ['Szeregowiec', 'Bliźniak', 'Wolnostojący'];
   var STATUS = { free: 'Wolny', res: 'Rezerwacja', sold: 'Sprzedany' };
   var MAX_UPLOADS = 6;
 
   var DEF_H = [
-    ['A1', 'Wolnostojący', 117.83, 520, 4, 'free'], ['A2', 'Wolnostojący', 117.83, 540, 4, 'res'], ['A3', 'Wolnostojący', 117.83, 505, 4, 'free'], ['B1', 'Wolnostojący', 117.83, 560, 4, 'free'], ['B2', 'Wolnostojący', 117.83, 530, 4, 'sold'], ['B3', 'Wolnostojący', 117.83, 610, 4, 'free'], ['C1', 'Wolnostojący', 117.83, 495, 4, 'free'], ['C2', 'Wolnostojący', 117.83, 580, 4, 'res'], ['C3', 'Wolnostojący', 117.83, 700, 4, 'sold']
+    ['A1', 'Wolnostojący', 117.83, 520, 4, 'free'], ['A2', 'Wolnostojący', 117.83, 540, 4, 'res'], ['A3', 'Wolnostojący', 117.83, 505, 4, 'free'], ['A4', 'Wolnostojący', 117.83, 560, 4, 'free'], ['A5', 'Wolnostojący', 117.83, 530, 4, 'sold'], ['A6', 'Wolnostojący', 117.83, 610, 4, 'free']
   ].map(function (r) { return { id: r[0], type: r[1], area: r[2], plot: r[3], rooms: r[4], price: null, status: r[5], published: true }; });
 
   var DEF_P = [

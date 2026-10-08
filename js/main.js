@@ -1,5 +1,5 @@
-/* WERSJA POKAZOWA: dane z panelu demonstracyjnego (localStorage tej przeglądarki) */
-function demoLoad(k){try{var v=localStorage.getItem('jakaDemo.'+k);return v?JSON.parse(v):null}catch(e){return null}}
+/* WERSJA POKAZOWA: dane z panelu demonstracyjnego (localStorage tej przeglądarki), wersja danych 4 */
+function demoLoad(k){try{if(localStorage.getItem('jakaDemo.v')!=='4'){localStorage.removeItem('jakaDemo.houses');localStorage.removeItem('jakaDemo.photos');localStorage.setItem('jakaDemo.v','4')}var v=localStorage.getItem('jakaDemo.'+k);return v?JSON.parse(v):null}catch(e){return null}}
 function demoSaveMessage(f){
   try{
     var m=JSON.parse(localStorage.getItem('jakaDemo.messages')||'[]'),g=function(n){var e=f.elements[n];return e?e.value:''},d=new Date(),p=function(n){return String(n).padStart(2,'0')};
@@ -13,12 +13,9 @@ const HOUSES_DEMO = [
   {id:'A1',type:'Wolnostojący',area:117.83,plot:520,rooms:4,price:null,status:'free'},
   {id:'A2',type:'Wolnostojący',area:117.83,plot:540,rooms:4,price:null,status:'res'},
   {id:'A3',type:'Wolnostojący',area:117.83,plot:505,rooms:4,price:null,status:'free'},
-  {id:'B1',type:'Wolnostojący',area:117.83,plot:560,rooms:4,price:null,status:'free'},
-  {id:'B2',type:'Wolnostojący',area:117.83,plot:530,rooms:4,price:null,status:'sold'},
-  {id:'B3',type:'Wolnostojący',area:117.83,plot:610,rooms:4,price:null,status:'free'},
-  {id:'C1',type:'Wolnostojący',area:117.83,plot:495,rooms:4,price:null,status:'free'},
-  {id:'C2',type:'Wolnostojący',area:117.83,plot:580,rooms:4,price:null,status:'res'},
-  {id:'C3',type:'Wolnostojący',area:117.83,plot:700,rooms:4,price:null,status:'sold'}
+  {id:'A4',type:'Wolnostojący',area:117.83,plot:560,rooms:4,price:null,status:'free'},
+  {id:'A5',type:'Wolnostojący',area:117.83,plot:530,rooms:4,price:null,status:'sold'},
+  {id:'A6',type:'Wolnostojący',area:117.83,plot:610,rooms:4,price:null,status:'free'}
 ];
 const HOUSES = (function(){var s=demoLoad('houses');return s?s.filter(function(h){return h.published!==false}):HOUSES_DEMO})();
 const STATUS = {free:'Wolny',res:'Rezerwacja',sold:'Sprzedany'};
@@ -153,6 +150,19 @@ const burger=document.querySelector('.burger'),nav=document.querySelector('nav.m
 burger.addEventListener('click',()=>{const o=nav.classList.toggle('open');burger.setAttribute('aria-expanded',o)});
 nav.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>nav.classList.remove('open')));
 
+/* pasek liczb: liczony z danych domów (nic na stałe) */
+(function(){
+  const box=document.getElementById('stats'); if(!box) return;
+  if(!HOUSES.length){ box.closest('section').style.display='none'; return; }
+  const areas=HOUSES.map(h=>h.area), minA=Math.min(...areas), maxA=Math.max(...areas);
+  const free=HOUSES.filter(h=>h.status==='free').length;
+  const rooms=Math.max(...HOUSES.map(h=>h.rooms));
+  const tiles=[[HOUSES.length,'domów'],[free,'wolnych']];
+  if(minA===maxA){ tiles.push([minA,'m² powierzchni użytkowej'],[rooms,'pokoje']); }
+  else { tiles.push([minA,'m² od'],[maxA,'m² do']); }
+  box.innerHTML=tiles.map(t=>'<div class="stat reveal"><b data-count="'+t[0]+'" data-dec="'+(Number.isInteger(t[0])?0:2)+'">0</b><span>'+esc(t[1])+'</span></div>').join('');
+})();
+
 /* reveal + count-up (powtarza się przy ponownym wjechaniu) */
 const io=new IntersectionObserver(es=>es.forEach(e=>{
   e.target.classList.toggle('in-view',e.isIntersecting);
@@ -161,9 +171,10 @@ const io=new IntersectionObserver(es=>es.forEach(e=>{
 }),{threshold:.2});
 document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
 function countUp(el){
-  const to=+el.dataset.count, t0=performance.now(), d=1400;
-  if(window.matchMedia('(prefers-reduced-motion:reduce)').matches){el.textContent=nf.format(to);return}
-  (function step(t){const p=Math.min((t-t0)/d,1);el.textContent=nf.format(Math.round(to*(1-Math.pow(1-p,3))));if(p<1)requestAnimationFrame(step)})(t0);
+  const to=+el.dataset.count, dec=+(el.dataset.dec||0), t0=performance.now(), d=1400;
+  const fmt=new Intl.NumberFormat('pl-PL',{minimumFractionDigits:dec,maximumFractionDigits:dec});
+  if(window.matchMedia('(prefers-reduced-motion:reduce)').matches){el.textContent=fmt.format(to);return}
+  (function step(t){const p=Math.min((t-t0)/d,1);const v=to*(1-Math.pow(1-p,3));el.textContent=fmt.format(dec?v:Math.round(v));if(p<1)requestAnimationFrame(step)})(t0);
 }
 
 /* kalkulator rat (orientacyjny) */
