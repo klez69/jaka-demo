@@ -298,6 +298,7 @@ lb.addEventListener('touchend',e=>{if(sx===null)return;const d=e.changedTouches[
   const nf2=new Intl.NumberFormat('pl-PL',{minimumFractionDigits:2,maximumFractionDigits:2});
   const P={
     usable:117.83,total:142.20,garage:19.53,boiler:4.84,footprint:199.77,full:182.07,
+    terrace:{w:3.00,d:4.60}, /* zadaszony taras w narożniku obrysu, wymiary z rzutu */
     /* Obrys zewnętrzny budynku uproszczony do prostokąta, w metrach: długość 16,60 i szerokość 12,00
        (opis techniczny projektu). null = bez obrysu. Nie zgadywać wymiarów. */
     outline:{w:16.60,d:12.00,wl:'długość',dl:'szerokość'},
@@ -333,6 +334,7 @@ lb.addEventListener('touchend',e=>{if(sx===null)return;const d=e.changedTouches[
     ['Kondygnacje','jedna nadziemna (parter), bez podpiwniczenia'],
     ['Dach','czterospadowy, kąt nachylenia połaci 30°'],
     ['Kubatura','1063,54 m³'],
+    ['Taras zadaszony','ok. '+nf2.format(P.terrace.w*P.terrace.d)+' m² ('+nf2.format(P.terrace.w)+' × '+nf2.format(P.terrace.d)+' m), wliczony w powierzchnię zabudowy'],
     ['Powierzchnia całkowita',nf2.format(P.full)+' m²']
   ].map(r=>'<div><dt>'+r[0]+'</dt><dd>'+r[1]+'</dd></div>').join('')+'</dl>';
 
@@ -351,7 +353,8 @@ lb.addEventListener('touchend',e=>{if(sx===null)return;const d=e.changedTouches[
      To NIE jest rzut: rozmieszczenie jest umowne i nie odzwierciedla układu pomieszczeń w domu. */
   const TXT={'#111111':'#fff','#b08d57':'#fff','#8a8a8a':'#fff','#cfcac1':'#111','#e4dfd5':'#111'};
   const EXTRA={name:'Garaż i kotłownia',c:'#e4dfd5',rooms:[['Garaż',P.garage],['Kotłownia',P.boiler]]};
-  const FILL={name:'Ściany i pozostała część obrysu',c:'#f1eee8',rooms:[['Ściany i pozostała część obrysu',+(P.footprint-P.total).toFixed(2)]]};
+  const TER=+(P.terrace.w*P.terrace.d).toFixed(2);
+  const FILL={name:'Taras, ściany i reszta obrysu',c:'#f1eee8',rooms:[['Zadaszony taras',TER],['Ściany i pozostała część obrysu',+(P.footprint-P.total-TER).toFixed(2)]]};
   TXT['#f1eee8']='#111';
   function squarify(items,x,y,w,h){
     const out=[]; let rest=items.slice();
@@ -393,7 +396,7 @@ lb.addEventListener('touchend',e=>{if(sx===null)return;const d=e.changedTouches[
       ? '<div class="dim-wrap"><div class="dim dim-top"><span>'+(O.wl?O.wl+' ':'')+dimFmt(O.w)+'</span></div><div class="dim-row"><div class="dim dim-left"><span>'+(O.dl?O.dl+' ':'')+dimFmt(O.d)+'</span></div>'+schBox+'</div></div>'
       : schBox;
     const note=O
-      ? 'Obrys zewnętrzny uproszczony do prostokąta '+nf2.format(O.w)+' × '+nf2.format(O.d)+' m. Powierzchnia zabudowy według projektu to '+nf2.format(P.footprint)+' m², z czego pomieszczenia zajmują '+nf2.format(P.total)+' m² (razem z garażem i kotłownią), a resztę stanowią ściany i pozostałe części obrysu. Nazwy najmniejszych pól są w liście pomieszczeń poniżej.'
+      ? 'Obrys zewnętrzny uproszczony do prostokąta '+nf2.format(O.w)+' × '+nf2.format(O.d)+' m. Powierzchnia zabudowy według projektu to '+nf2.format(P.footprint)+' m², z czego pomieszczenia zajmują '+nf2.format(P.total)+' m² (razem z garażem i kotłownią), a resztę stanowią zadaszony taras (ok. '+nf2.format(TER)+' m², '+nf2.format(P.terrace.w)+' × '+nf2.format(P.terrace.d)+' m), ściany i pozostałe części obrysu. Nazwy najmniejszych pól są w liście pomieszczeń poniżej.'
       : 'Garaż (19,53 m²) i kotłownia (4,84 m²) są poza powierzchnią mieszkalną i nie są pokazane. Nazwy najmniejszych pól są w liście pomieszczeń poniżej.';
     sch.innerHTML='<h3>'+(O?'Schemat powierzchni w obrysie budynku':'Schemat powierzchni pomieszczeń')+'</h3><p class="pj-sub">Wielkość pola odpowiada powierzchni pomieszczenia. To nie jest rzut: rozmieszczenie pól jest schematyczne i nie pokazuje prawdziwego układu domu.</p>'+
       body+'<ul class="sch-legend">'+groups.map(g=>'<li><span class="sw" style="background:'+g.c+'"></span>'+esc(g.name)+'</li>').join('')+'<li class="sch-note">'+note+'</li></ul>';
