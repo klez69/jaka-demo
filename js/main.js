@@ -1,5 +1,5 @@
-/* WERSJA POKAZOWA: dane z panelu demonstracyjnego (localStorage tej przeglądarki), wersja danych 4 */
-function demoLoad(k){try{if(localStorage.getItem('jakaDemo.v')!=='4'){localStorage.removeItem('jakaDemo.houses');localStorage.removeItem('jakaDemo.photos');localStorage.setItem('jakaDemo.v','4')}var v=localStorage.getItem('jakaDemo.'+k);return v?JSON.parse(v):null}catch(e){return null}}
+/* WERSJA POKAZOWA: dane z panelu demonstracyjnego (localStorage tej przeglądarki), wersja danych 5 */
+function demoLoad(k){try{if(localStorage.getItem('jakaDemo.v')!=='5'){localStorage.removeItem('jakaDemo.houses');localStorage.removeItem('jakaDemo.photos');localStorage.setItem('jakaDemo.v','5')}var v=localStorage.getItem('jakaDemo.'+k);return v?JSON.parse(v):null}catch(e){return null}}
 function demoSaveMessage(f){
   try{
     var m=JSON.parse(localStorage.getItem('jakaDemo.messages')||'[]'),g=function(n){var e=f.elements[n];return e?e.value:''},d=new Date(),p=function(n){return String(n).padStart(2,'0')};
@@ -22,7 +22,7 @@ const STATUS = {free:'Wolny',res:'Rezerwacja',sold:'Sprzedany'};
 const esc = s => String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const nf = new Intl.NumberFormat('pl-PL');
 
-const HOUSE_IMGS = ['img/dom-2.webp','img/dom-3.webp','img/dom-4.webp','img/dom-5.webp','img/dom-1.webp'];
+const HOUSE_IMGS = ['img/dom-2.webp','img/dom-3.webp','img/dom-4.webp','img/dom-5.webp','img/dom-1.webp','img/dom-7.webp'];
 const IMG_POS = ['50% 50%','25% 50%','75% 50%'];
 const TYPES = ['Szeregowiec','Bliźniak','Wolnostojący'];
 const grid = document.getElementById('houses');
@@ -211,7 +211,10 @@ const PHOTOS_DEMO = [
   {src:'img/dom-2.webp',alt:'Dom parterowy z grafitowym dachem kopertowym, białą elewacją i garażem, widok od strony podjazdu'},
   {src:'img/dom-3.webp',alt:'Dom parterowy z garażem w bryle i wejściem w niszy z szarą okładziną'},
   {src:'img/dom-4.webp',alt:'Dom parterowy z otwartym garażem, podjazdem z kostki i ogrodem'},
-  {src:'img/dom-5.webp',alt:'Dom parterowy z dachem kopertowym wśród zieleni i brzóz'}
+  {src:'img/dom-5.webp',alt:'Dom parterowy z dachem kopertowym wśród zieleni i brzóz'},
+  {src:'img/dom-6.webp',alt:'Parterowy dom z garażem o wschodzie słońca, podjazd z kostki i trawnik'},
+  {src:'img/dom-7.webp',alt:'Parterowy dom z garażem w słoneczny dzień, niebieskie niebo i zadbany ogród'},
+  {src:'img/dom-8.webp',alt:'Parterowy dom z garażem wieczorem, rozświetlone okna i oświetlony podjazd'}
 ];
 const PHOTOS = (function(){var s=demoLoad('photos');return s?s.filter(function(p){return p.published!==false}).map(function(p){return {src:p.src,alt:p.alt}}):PHOTOS_DEMO})();
 function photoHtml(p,i){

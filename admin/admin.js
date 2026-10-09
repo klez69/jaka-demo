@@ -6,7 +6,7 @@
   var K = { h: 'jakaDemo.houses', p: 'jakaDemo.photos', m: 'jakaDemo.messages', a: 'jakaDemo.auth' };
   /* Wersja danych demonstracyjnych. Po zmianie domyślnych domów lub zdjęć zwiększ numer: zapisane wcześniej
      w przeglądarce domy i zdjęcia zostaną odrzucone (wiadomości zostają). Ten sam numer jest w tools/build-demo.js. */
-  var DEMO_V = '4';
+  var DEMO_V = '5';
   try { if (localStorage.getItem('jakaDemo.v') !== DEMO_V) { localStorage.removeItem(K.h); localStorage.removeItem(K.p); localStorage.setItem('jakaDemo.v', DEMO_V); } } catch (e) {}
   var TYPES = ['Szeregowiec', 'Bliźniak', 'Wolnostojący'];
   var STATUS = { free: 'Wolny', res: 'Rezerwacja', sold: 'Sprzedany' };
@@ -21,7 +21,10 @@
     ['img/dom-2.webp', 'Dom parterowy z grafitowym dachem kopertowym, białą elewacją i garażem, widok od strony podjazdu'],
     ['img/dom-3.webp', 'Dom parterowy z garażem w bryle i wejściem w niszy z szarą okładziną'],
     ['img/dom-4.webp', 'Dom parterowy z otwartym garażem, podjazdem z kostki i ogrodem'],
-    ['img/dom-5.webp', 'Dom parterowy z dachem kopertowym wśród zieleni i brzóz']
+    ['img/dom-5.webp', 'Dom parterowy z dachem kopertowym wśród zieleni i brzóz'],
+    ['img/dom-6.webp', 'Parterowy dom z garażem o wschodzie słońca, podjazd z kostki i trawnik'],
+    ['img/dom-7.webp', 'Parterowy dom z garażem w słoneczny dzień, niebieskie niebo i zadbany ogród'],
+    ['img/dom-8.webp', 'Parterowy dom z garażem wieczorem, rozświetlone okna i oświetlony podjazd']
   ].map(function (r) { return { src: r[0], alt: r[1], published: true }; });
 
   var app = document.getElementById('app');
